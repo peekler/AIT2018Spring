@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">AITTime</string>
+    <string name="button_press">Press me</string>
+    <string name="date_head">The date is: %1$s</string>
+    <string name="hint_name">Enter your name here</string>
+    <string name="hint_address">Enter your address here</string>
+
 </resources>
