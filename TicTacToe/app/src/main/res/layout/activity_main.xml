@@ -11,10 +11,17 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello AIT!"/>
+        android:text="Hello AIT!" />
 
     <hu.bme.aut.android.tictactoe.ui.TicTacToeView
+        android:id="@+id/ticTacToe"
         android:layout_width="300dp"
         android:layout_height="300dp" />
+
+    <Button
+        android:id="@+id/btnClear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear"/>
 
 </LinearLayout>
