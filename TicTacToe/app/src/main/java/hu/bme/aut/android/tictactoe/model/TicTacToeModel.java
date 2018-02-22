@@ -21,8 +21,8 @@ public class TicTacToeModel {
 
     private short[][] model = {
         {EMPTY, EMPTY, EMPTY},
-        {EMPTY, CIRCLE, EMPTY},
-        {EMPTY, CROSS, EMPTY}
+        {EMPTY, EMPTY, EMPTY},
+        {EMPTY, EMPTY, EMPTY}
     };
 
     private short nextPlayer = CIRCLE;
@@ -36,5 +36,27 @@ public class TicTacToeModel {
         return model[x][y];
     }
 
+    public short getNextPlayer() {
+        return nextPlayer;
+    }
+
+    public void changeNextPlayer() {
+        //nextPlayer = (nextPlayer == CIRCLE) ? CROSS : CIRCLE;
+        if (nextPlayer == CIRCLE) {
+            nextPlayer = CROSS;
+        } else {
+            nextPlayer = CIRCLE;
+        }
+    }
+
+    public void resetGame() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                model[i][j] = EMPTY;
+            }
+        }
+
+        nextPlayer = CIRCLE;
+    }
 
 }
