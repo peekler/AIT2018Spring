@@ -22,7 +22,8 @@ public class ActivityA extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ActivityA.this, ActivityB.class);
+                Intent intent = new Intent(ActivityA.this,
+                        ActivityB.class);
                 startActivityForResult(intent, 100);
             }
         });
@@ -31,9 +32,11 @@ public class ActivityA extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 101) {
-            String result = data.getStringExtra("content");
+        if (resultCode == RESULT_OK) {
+            String result = data.getStringExtra(ActivityB.KEY_CONTENT);
             Toast.makeText(ActivityA.this, result, Toast.LENGTH_LONG).show();
+        } else if (resultCode == RESULT_CANCELED) {
+            Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
         }
     }
 
