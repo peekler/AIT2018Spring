@@ -9,12 +9,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
+
 import java.security.interfaces.RSAKey;
 import java.util.Random;
+
+import hu.bme.aut.android.highlowgame.data.DataManager;
 
 public class GameActivity extends AppCompatActivity {
 
     public static final String KEY_GEN = "KEY_GEN";
+    public static final String KEY_COUNT = "KEY_COUNT";
     private int generated = 0;
 
     @Override
@@ -40,8 +45,12 @@ public class GameActivity extends AppCompatActivity {
                         } else {
                             tvStatus.setText("YOU HAVE WON!");
 
-                            startActivity(new Intent(GameActivity.this,
-                                    ResultActivity.class));
+                            DataManager.getInstance().setCoutner(3);
+
+                            Intent intent = new Intent(GameActivity.this,
+                                    ResultActivity.class);
+                            intent.putExtra(KEY_COUNT, 2);
+                            startActivity(intent);
 
                             //  finish();
                         }
@@ -60,6 +69,10 @@ public class GameActivity extends AppCompatActivity {
         } else {
             generateNewNumber();
         }
+
+        ShimmerFrameLayout shimmer = findViewById(R.id.shimmer);
+        shimmer.startShimmerAnimation();
+
     }
 
     @Override
