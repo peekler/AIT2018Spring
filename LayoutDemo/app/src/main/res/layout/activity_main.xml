@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        tools:context="hu.ait.android.layoutdemo.MainActivity">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Press me" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="9">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:enabled="false"
+                android:text="Press" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:text="Press"
+                android:visibility="gone" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:text="Press" />
+
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Press me" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:text="Press me" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:text="Press me" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:text="Press me" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:text="Press me" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:text="Press me" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:text="Press me" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:text="Press me" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:text="Press me" />
+
+
+    </LinearLayout>
+
+</ScrollView>

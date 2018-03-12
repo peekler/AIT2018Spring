@@ -13,9 +13,20 @@
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
         android:background="#6363c6"
+        app:theme="@style/ToolBarStyle"
         />
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!" />
+
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!" />

@@ -8,4 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+
+    <style name="ToolBarStyle" parent="AppTheme">
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#0000ff</item>
+        <item name="android:colorBackground">#6363c6</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+    </style>
+
 </resources>
