@@ -56,6 +56,11 @@ public class TodoRecylerAdapter
         return todoList.size();
     }
 
+    public void addTodo(Todo todo) {
+        todoList.add(todo);
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tvDate;
         private CheckBox cbDone;

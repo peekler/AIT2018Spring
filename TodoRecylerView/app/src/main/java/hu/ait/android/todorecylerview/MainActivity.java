@@ -11,9 +11,13 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import hu.ait.android.todorecylerview.adapter.TodoRecylerAdapter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
+import hu.ait.android.todorecylerview.adapter.TodoRecylerAdapter;
+import hu.ait.android.todorecylerview.data.Todo;
+
+public class MainActivity extends AppCompatActivity implements NewTodoDialog.TodoHandler {
 
     private TodoRecylerAdapter todoRecylerAdapter;
 
@@ -28,9 +32,8 @@ public class MainActivity extends AppCompatActivity {
                 (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onClick(View v) {
+                showNewTodoDialog();
             }
         });
 
@@ -44,5 +47,18 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(todoRecylerAdapter);
     }
 
+    private void showNewTodoDialog() {
+       new NewTodoDialog().show(getSupportFragmentManager(), "NewTodoDialog");
+    }
 
+    @Override
+    public void onNewTodoCreated(String todo) {
+        todoRecylerAdapter.addTodo(
+                new Todo(todo,
+                        new SimpleDateFormat(
+                                "yyyy-MM-dd hh:mm:ss").format(
+                                        new Date(System.currentTimeMillis())),
+                        false)
+        );
+    }
 }
