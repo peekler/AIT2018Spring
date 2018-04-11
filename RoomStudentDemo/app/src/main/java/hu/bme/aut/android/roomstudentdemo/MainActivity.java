@@ -56,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 tvResult.setText("");
 
-
-
                 new Thread() {
                     public void run() {
                         List<Grade> grades = db.gradeDao().getAllGrades();
