@@ -1,16 +1,15 @@
 package hu.ait.android.todorecylerview;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,9 +19,11 @@ import hu.ait.android.todorecylerview.adapter.TodoRecylerAdapter;
 import hu.ait.android.todorecylerview.data.AppDatabase;
 import hu.ait.android.todorecylerview.data.Todo;
 import hu.ait.android.todorecylerview.touch.TodoItemTouchHelperCallback;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
-public class MainActivity extends AppCompatActivity implements NewTodoDialog.TodoHandler {
+public class MainActivity extends AppCompatActivity implements TodoCreateAndEditDialog.TodoHandler {
 
+    public static final String KEY_TODO_TO_EDIT = "KEY_TODO_TO_EDIT";
     private TodoRecylerAdapter todoRecylerAdapter;
 
     @Override
@@ -41,13 +42,37 @@ public class MainActivity extends AppCompatActivity implements NewTodoDialog.Tod
             }
         });
 
+        if (isFirstRun()) {
+            new MaterialTapTargetPrompt.Builder(MainActivity.this)
+                    .setTarget(findViewById(R.id.fab))
+                    .setPrimaryText("New Todo")
+                    .setSecondaryText("Tap here to create new todo")
+                    .show();
+        }
+
         RecyclerView recyclerView = findViewById(R.id.recyclerTodo);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(
                 new LinearLayoutManager(this));
 
         initTodos(recyclerView);
+
+        saveThatItWasStarted();
     }
+
+    public boolean isFirstRun() {
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
+                "KEY_FIRST", true
+        );
+    }
+
+    public void saveThatItWasStarted() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("KEY_FIRST", false);
+        editor.commit();
+    }
+
 
     public void initTodos(final RecyclerView recyclerView) {
         new Thread(){
@@ -73,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements NewTodoDialog.Tod
     }
 
     private void showNewTodoDialog() {
-       new NewTodoDialog().show(getSupportFragmentManager(), "NewTodoDialog");
+       new TodoCreateAndEditDialog().show(getSupportFragmentManager(), "TodoCreateAndEditDialog");
     }
 
     @Override
@@ -86,7 +111,9 @@ public class MainActivity extends AppCompatActivity implements NewTodoDialog.Tod
                                 "yyyy-MM-dd hh:mm:ss").format(
                                 new Date(System.currentTimeMillis())),
                         false);
-                AppDatabase.getAppDatabase(MainActivity.this).todoDao().insertTodo(newTodo);
+                long id = AppDatabase.getAppDatabase(MainActivity.this).
+                        todoDao().insertTodo(newTodo);
+                newTodo.setTodoId(id);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -97,4 +124,34 @@ public class MainActivity extends AppCompatActivity implements NewTodoDialog.Tod
             }
         }.start();
     }
+
+    @Override
+    public void onTodoUpdated(final Todo todo) {
+        new Thread() {
+            @Override
+            public void run() {
+                AppDatabase.getAppDatabase(MainActivity.this).todoDao().update(todo);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        todoRecylerAdapter.updateTodo(todo);
+                    }
+                });
+            }
+        }.start();
+    }
+
+    public void editTodo(Todo todo) {
+        TodoCreateAndEditDialog editDialog = new TodoCreateAndEditDialog();
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(KEY_TODO_TO_EDIT, todo);
+        editDialog.setArguments(bundle);
+
+
+        editDialog.show(getSupportFragmentManager(), "EditDialog");
+    }
+
+
 }

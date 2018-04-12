@@ -30,4 +30,7 @@ dependencies {
 
     implementation 'android.arch.persistence.room:runtime:1.0.0'
     annotationProcessor 'android.arch.persistence.room:compiler:1.0.0'
+
+    implementation 'com.flaviofaria:kenburnsview:1.0.7'
+    implementation 'uk.co.samuelwall:material-tap-target-prompt:2.3.0'
 }
