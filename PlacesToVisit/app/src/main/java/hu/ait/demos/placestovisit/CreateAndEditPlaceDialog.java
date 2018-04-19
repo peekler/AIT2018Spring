@@ -76,28 +76,7 @@ public class CreateAndEditPlaceDialog extends DialogFragment {
         builder.setPositiveButton(getString(R.string.btn_save), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (!TextUtils.isEmpty(etPlace.getText())) {
-                    if (getArguments() != null &&
-                            getArguments().containsKey(MainActivity.KEY_EDIT)) {
-                        Place placeToEdit = (Place) getArguments().getSerializable(MainActivity.KEY_EDIT);
-                        placeToEdit.setPlaceName(etPlace.getText().toString());
-                        placeToEdit.setDescription(etPlaceDesc.getText().toString());
-                        placeToEdit.setPlaceType(spinnerPlaceType.getSelectedItemPosition());
 
-                        placeHandler.onPlaceUpdated(placeToEdit);
-                    } else {
-                        Place place = new Place(
-                                etPlace.getText().toString(),
-                                etPlaceDesc.getText().toString(),
-                                System.currentTimeMillis(),
-                                spinnerPlaceType.getSelectedItemPosition()
-                        );
-
-                        placeHandler.onNewPlaceCreated(place);
-                    }
-                } else {
-                    etPlace.setError(getString(R.string.error_field_empty));
-                }
             }
         });
 
@@ -110,7 +89,7 @@ public class CreateAndEditPlaceDialog extends DialogFragment {
     //Doing it in onResume() makes sure that even if there is a config change
     //environment that skips onStart then the dialog will still be functioning
     //properly after a rotation.
-    /*@Override
+    @Override
     public void onResume()
     {
         super.onResume();
@@ -123,13 +102,34 @@ public class CreateAndEditPlaceDialog extends DialogFragment {
                 @Override
                 public void onClick(View v)
                 {
-                    Boolean wantToCloseDialog = false;
-                    //Do stuff, possibly set wantToCloseDialog to true then...
-                    if(wantToCloseDialog)
+                    if (!TextUtils.isEmpty(etPlace.getText())) {
+                        if (getArguments() != null &&
+                                getArguments().containsKey(MainActivity.KEY_EDIT)) {
+                            Place placeToEdit = (Place) getArguments().getSerializable(MainActivity.KEY_EDIT);
+                            placeToEdit.setPlaceName(etPlace.getText().toString());
+                            placeToEdit.setDescription(etPlaceDesc.getText().toString());
+                            placeToEdit.setPlaceType(spinnerPlaceType.getSelectedItemPosition());
+
+                            placeHandler.onPlaceUpdated(placeToEdit);
+                        } else {
+                            Place place = new Place(
+                                    etPlace.getText().toString(),
+                                    etPlaceDesc.getText().toString(),
+                                    System.currentTimeMillis(),
+                                    spinnerPlaceType.getSelectedItemPosition()
+                            );
+
+                            placeHandler.onNewPlaceCreated(place);
+                        }
+
                         d.dismiss();
-                    //else dialog stays open. Make sure you have an obvious way to close the dialog especially if you set cancellable to false.
+
+                    } else {
+                        etPlace.setError(getString(R.string.error_field_empty));
+                    }
+
                 }
             });
         }
-    }*/
+    }
 }
