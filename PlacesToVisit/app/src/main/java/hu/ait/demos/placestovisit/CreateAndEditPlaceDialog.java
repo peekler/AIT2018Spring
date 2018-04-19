@@ -2,10 +2,19 @@ package hu.ait.demos.placestovisit;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+
+import java.util.Date;
 
 import hu.ait.demos.placestovisit.data.Place;
 
@@ -18,6 +27,10 @@ public class CreateAndEditPlaceDialog extends DialogFragment {
     }
 
     private PlaceHandler placeHandler;
+    private Spinner spinnerPlaceType;
+    private EditText etPlace;
+    private EditText etPlaceDesc;
+    private Place placeToEdit = null;
 
     @Override
     public void onAttach(Context context) {
@@ -27,7 +40,7 @@ public class CreateAndEditPlaceDialog extends DialogFragment {
             placeHandler = (PlaceHandler)context;
         } else {
             throw new RuntimeException(
-                    "The Activity does not implement the PlaceHandler interface");
+                    getString(R.string.error_wrong_interface));
         }
     }
 
@@ -36,33 +49,54 @@ public class CreateAndEditPlaceDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("New Todo");
-        // Set up the input
-        final EditText input = new EditText(getActivity());
+        builder.setTitle(getString(R.string.title_new_place));
+
+        View rootView = getActivity().getLayoutInflater().inflate(R.layout.dialog_create_place, null);
+
+
+        spinnerPlaceType = (Spinner) rootView.findViewById(R.id.spinnerPlaceType);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.placetypes_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerPlaceType.setAdapter(adapter);
+
+        etPlace = (EditText) rootView.findViewById(R.id.etPlaceName);
+        etPlaceDesc = (EditText) rootView.findViewById(R.id.etPlaceDesc);
 
         if (getArguments() != null &&
-                getArguments().containsKey(MainActivity.KEY_TODO_TO_EDIT)) {
-
-            input.setText(
-                    ((Todo)getArguments().getSerializable(
-                            MainActivity.KEY_TODO_TO_EDIT)).getTodoTitle());
+                getArguments().containsKey(MainActivity.KEY_EDIT)) {
+            Place placeToEdit = (Place) getArguments().getSerializable(MainActivity.KEY_EDIT);
+            etPlace.setText(placeToEdit.getPlaceName());
+            etPlaceDesc.setText(placeToEdit.getDescription());
+            spinnerPlaceType.setSelection(placeToEdit.getPlaceTypeAsEnum().getValue());
         }
 
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        builder.setView(input);
-        // Set up the buttons
-        builder.setPositiveButton("Save todo", new DialogInterface.OnClickListener() {
+        builder.setView(rootView);
+
+        builder.setPositiveButton(getString(R.string.btn_save), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (getArguments()!=null &&
-                        getArguments().containsKey(MainActivity.KEY_TODO_TO_EDIT))
-                {
-                    Todo todoToEdit = (Todo) getArguments().getSerializable(
-                            MainActivity.KEY_TODO_TO_EDIT);
-                    todoToEdit.setTodoTitle(input.getText().toString());
-                    todoHandler.onTodoUpdated(todoToEdit);
+                if (!TextUtils.isEmpty(etPlace.getText())) {
+                    if (getArguments() != null &&
+                            getArguments().containsKey(MainActivity.KEY_EDIT)) {
+                        Place placeToEdit = (Place) getArguments().getSerializable(MainActivity.KEY_EDIT);
+                        placeToEdit.setPlaceName(etPlace.getText().toString());
+                        placeToEdit.setDescription(etPlaceDesc.getText().toString());
+                        placeToEdit.setPlaceType(spinnerPlaceType.getSelectedItemPosition());
+
+                        placeHandler.onPlaceUpdated(placeToEdit);
+                    } else {
+                        Place place = new Place(
+                                etPlace.getText().toString(),
+                                etPlaceDesc.getText().toString(),
+                                System.currentTimeMillis(),
+                                spinnerPlaceType.getSelectedItemPosition()
+                        );
+
+                        placeHandler.onNewPlaceCreated(place);
+                    }
                 } else {
-                    todoHandler.onNewTodoCreated(input.getText().toString());
+                    etPlace.setError(getString(R.string.error_field_empty));
                 }
             }
         });
@@ -70,5 +104,32 @@ public class CreateAndEditPlaceDialog extends DialogFragment {
         return builder.create();
     }
 
-
+    //onStart() is where dialog.show() is actually called on
+    //the underlying dialog, so we have to do it there or
+    //later in the lifecycle.
+    //Doing it in onResume() makes sure that even if there is a config change
+    //environment that skips onStart then the dialog will still be functioning
+    //properly after a rotation.
+    /*@Override
+    public void onResume()
+    {
+        super.onResume();
+        final AlertDialog d = (AlertDialog)getDialog();
+        if(d != null)
+        {
+            Button positiveButton = (Button) d.getButton(Dialog.BUTTON_POSITIVE);
+            positiveButton.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    Boolean wantToCloseDialog = false;
+                    //Do stuff, possibly set wantToCloseDialog to true then...
+                    if(wantToCloseDialog)
+                        d.dismiss();
+                    //else dialog stays open. Make sure you have an obvious way to close the dialog especially if you set cancellable to false.
+                }
+            });
+        }
+    }*/
 }

@@ -11,4 +11,8 @@
     <string name="txt_about">This app was made for AIT Mobile Course!</string>
     <string name="txt_help">Use the touch controls to work with the application.</string>
     <string name="action_hide">Hide</string>
+    <string name="error_wrong_interface">The Activity does not implement the PlaceHandler interface</string>
+    <string name="title_new_place">New Place</string>
+    <string name="btn_save">Save</string>
+    <string name="error_field_empty">This field can not be empty</string>
 </resources>

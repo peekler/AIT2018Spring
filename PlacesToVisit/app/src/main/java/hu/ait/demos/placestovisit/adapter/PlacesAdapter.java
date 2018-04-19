@@ -12,10 +12,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import hu.ait.demos.placestovisit.MainActivity;
 import hu.ait.demos.placestovisit.R;
+import hu.ait.demos.placestovisit.data.AppDatabase;
 import hu.ait.demos.placestovisit.data.Place;
 
 public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder> {
@@ -57,9 +59,9 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
         viewHolder.tvPlace.setText(placesList.get(position).getPlaceName());
-        viewHolder.tvDate.setText(placesList.get(position).getPickUpDate().toString());
+        viewHolder.tvDate.setText(new Date(placesList.get(position).getPickUpDate()).toString());
         viewHolder.ivIcon.setImageResource(
-                placesList.get(position).getPlaceType().getIconId());
+                placesList.get(position).getPlaceTypeAsEnum().getIconId());
 
         viewHolder.btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,9 +72,7 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder
         viewHolder.btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) context).showEditPlaceActivity(
-                        placesList.get(viewHolder.getAdapterPosition()).getPlaceID(),
-                        viewHolder.getAdapterPosition());
+                ((MainActivity) context).showEditPlaceDialog(placesList.get(viewHolder.getAdapterPosition()));
             }
         });
 
@@ -89,17 +89,33 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
-    public void updatePlace(int index, Place place) {
-        placesList.set(index, place);
-
-        notifyItemChanged(index);
-
+    public void updatePlace(Place place) {
+        int editPos = findPlaceIndexByPlaceId(place.getPlaceID());
+        placesList.set(editPos, place);
+        notifyItemChanged(editPos);
     }
 
-    public void removePlace(int index) {
-        ((MainActivity)context).deletePlace(placesList.get(index));
-        placesList.remove(index);
-        notifyItemRemoved(index);
+    private int findPlaceIndexByPlaceId(long placeId) {
+        for (int i = 0; i < placesList.size(); i++) {
+            if (placesList.get(i).getPlaceID() == placeId) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public void removePlace(int position) {
+        final Place placeToDelete = placesList.get(position);
+        placesList.remove(placeToDelete);
+        notifyItemRemoved(position);
+        new Thread() {
+            @Override
+            public void run() {
+                AppDatabase.getAppDatabase(context).placeDao().delete(
+                        placeToDelete);
+            }
+        }.start();
     }
 
     public void swapPlaces(int oldPosition, int newPosition) {

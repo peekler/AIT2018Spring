@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="192dp"
             android:fitsSystemWindows="true"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            android:theme="@style/AppTheme.AppBarOverlay">
 
             <android.support.design.widget.CollapsingToolbarLayout
                 android:id="@+id/collapsing_toolbar"
@@ -44,7 +44,7 @@
                     android:layout_height="?attr/actionBarSize"
                     android:background="#55AEFF7C"
                     app:layout_collapseMode="pin"
-                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+                    app:popupTheme="@style/AppTheme.PopupOverlay"/>
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
 

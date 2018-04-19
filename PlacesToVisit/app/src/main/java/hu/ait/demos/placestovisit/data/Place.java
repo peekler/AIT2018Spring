@@ -3,12 +3,13 @@ package hu.ait.demos.placestovisit.data;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import hu.ait.demos.placestovisit.R;
 
 @Entity
-public class Place {
+public class Place implements Serializable {
     public enum PlaceType {
         LANDSCAPE(0, R.drawable.landscape),
         CITY(1, R.drawable.city), BUILDING(2, R.drawable.building);
@@ -40,25 +41,25 @@ public class Place {
     }
 
     @PrimaryKey(autoGenerate = true)
-    private String placeID;
+    private long placeID;
 
     private String placeName;
     private String description;
-    private Date pickUpDate;
+    private long pickUpDate;
     private int placeType;
 
-    public Place(String placeName, String description, Date pickUpDate, int placeType) {
+    public Place(String placeName, String description, long pickUpDate, int placeType) {
         this.placeName = placeName;
         this.description = description;
         this.pickUpDate = pickUpDate;
         this.placeType = placeType;
     }
 
-    public String getPlaceID() {
+    public long getPlaceID() {
         return placeID;
     }
 
-    public void setPlaceID(String placeID) {
+    public void setPlaceID(long placeID) {
         this.placeID = placeID;
     }
 
@@ -78,11 +79,11 @@ public class Place {
         this.description = description;
     }
 
-    public Date getPickUpDate() {
+    public long getPickUpDate() {
         return pickUpDate;
     }
 
-    public void setPickUpDate(Date pickUpDate) {
+    public void setPickUpDate(long pickUpDate) {
         this.pickUpDate = pickUpDate;
     }
 
@@ -93,4 +94,9 @@ public class Place {
     public void setPlaceType(int placeType) {
         this.placeType = placeType;
     }
+
+    public PlaceType getPlaceTypeAsEnum() {
+        return PlaceType.fromInt(placeType);
+    }
+
 }

@@ -18,27 +18,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import hu.ait.demos.placestovisit.adapter.PlacesAdapter;
 import hu.ait.demos.placestovisit.data.AppDatabase;
 import hu.ait.demos.placestovisit.data.Place;
 import hu.ait.demos.placestovisit.touch.PlacesListTouchHelperCallback;
-import io.realm.Realm;
-import io.realm.RealmResults;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CreateAndEditPlaceDialog.PlaceHandler {
 
-    public static final int REQUEST_NEW_PLACE = 101;
-    public static final int REQUEST_EDIT_PLACE = 102;
     public static final String KEY_EDIT = "KEY_EDIT";
     private PlacesAdapter placesAdapter;
     private CoordinatorLayout layoutContent;
     private DrawerLayout drawerLayout;
-    private int placeToEditPosition = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCreatePlaceActivity();
+                showCreatePlaceDialog();
             }
         });
 
@@ -67,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                         menuItem.setChecked(true);
                         switch (menuItem.getItemId()) {
                             case R.id.action_add:
-                                showCreatePlaceActivity();
+                                showCreatePlaceDialog();
                                 drawerLayout.closeDrawer(GravityCompat.START);
                                 break;
                             case R.id.action_about:
@@ -133,54 +126,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void showCreatePlaceActivity() {
-        Intent intentStart = new Intent(MainActivity.this,
-                CreatePlaceActivity.class);
-        startActivityForResult(intentStart, REQUEST_NEW_PLACE);
+    private void showCreatePlaceDialog() {
+        new CreateAndEditPlaceDialog().show(getSupportFragmentManager(), "CreateAndEditPlaceDialog");
     }
 
-    public void showEditPlaceActivity(String placeID, int position) {
-        Intent intentStart = new Intent(MainActivity.this,
-                CreatePlaceActivity.class);
-        placeToEditPosition = position;
+    public void showEditPlaceDialog(Place place) {
+        CreateAndEditPlaceDialog editPlaceDialog = new CreateAndEditPlaceDialog();
 
-        intentStart.putExtra(KEY_EDIT, placeID);
-        startActivityForResult(intentStart, REQUEST_EDIT_PLACE);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(KEY_EDIT, place);
+        editPlaceDialog.setArguments(bundle);
+
+        editPlaceDialog.show(getSupportFragmentManager(), "EditDialog");
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (resultCode) {
-            case RESULT_OK:
-                String placeID  = data.getStringExtra(
-                        CreatePlaceActivity.KEY_PLACE);
-
-                Place place = getRealm().where(Place.class)
-                        .equalTo("placeID", placeID)
-                        .findFirst();
-
-                if (requestCode == REQUEST_NEW_PLACE) {
-                    placesAdapter.addPlace(place);
-                    showSnackBarMessage(getString(R.string.txt_place_added));
-                } else if (requestCode == REQUEST_EDIT_PLACE) {
-
-
-                    placesAdapter.updatePlace(placeToEditPosition, place);
-                    showSnackBarMessage(getString(R.string.txt_place_edited));
-                }
-                break;
-            case RESULT_CANCELED:
-                showSnackBarMessage(getString(R.string.txt_add_cancel));
-                break;
-        }
-    }
-
-    public void deletePlace(Place place) {
-        getRealm().beginTransaction();
-        place.deleteFromRealm();
-        getRealm().commitTransaction();
-    }
-
 
     private void showSnackBarMessage(String message) {
         Snackbar.make(layoutContent,
@@ -205,19 +163,52 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add:
-                showCreatePlaceActivity();
+                showCreatePlaceDialog();
                 return true;
             default:
-                showCreatePlaceActivity();
+                showCreatePlaceDialog();
                 return true;
         }
     }
 
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ((MainApplication)getApplication()).closeRealm();
+    public void onNewPlaceCreated(final Place place) {
+        new Thread(){
+            @Override
+            public void run() {
+               long id = AppDatabase.getAppDatabase(MainActivity.this).
+                        placeDao().insertTodo(place);
+                place.setPlaceID(id);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        placesAdapter.addPlace(place);
+                        showSnackBarMessage(getString(R.string.txt_place_added));
+                    }
+                });
+            }
+        }.start();
     }
+
+    @Override
+    public void onPlaceUpdated(final Place place) {
+        new Thread() {
+            @Override
+            public void run() {
+                AppDatabase.getAppDatabase(MainActivity.this).placeDao().update(place);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        placesAdapter.updatePlace(place);
+                    }
+                });
+            }
+        }.start();
+    }
+
 
 }
 
