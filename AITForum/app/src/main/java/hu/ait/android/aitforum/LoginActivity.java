@@ -1,6 +1,7 @@
 package hu.ait.android.aitforum;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +39,35 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         firebaseAuth = FirebaseAuth.getInstance();
         ButterKnife.bind(this);
+    }
+
+    @OnClick(R.id.btnLogin)
+    void loginClick() {
+        if (!isFormValid()) {
+            return;
+        }
+
+        showProgressDialog();
+
+        firebaseAuth.signInWithEmailAndPassword(
+                etEmail.getText().toString(),
+                etPassword.getText().toString()
+        ).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                hideProgressDialog();
+
+                if (task.isSuccessful()) {
+                    Intent intentMain = new Intent();
+                    intentMain.setClass(LoginActivity.this, MainActivity.class);
+                    startActivity(intentMain);
+                } else {
+                    Toast.makeText(LoginActivity.this,
+                            "Error: "+task.getException().getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @OnClick(R.id.btnRegister)
