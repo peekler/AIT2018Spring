@@ -59,6 +59,21 @@ public class TodoRecylerAdapter
                         todoList.get(holder.getAdapterPosition()));
             }
         });
+        holder.cbDone.setChecked(todoList.get(holder.getAdapterPosition()).isDone());
+        holder.cbDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Todo todo = todoList.get(holder.getAdapterPosition());
+                todo.setDone(holder.cbDone.isChecked());
+                notifyItemChanged(holder.getAdapterPosition());
+                new Thread() {
+                    @Override
+                    public void run() {
+                        AppDatabase.getAppDatabase(context).todoDao().update(todo);
+                    }
+                }.start();
+            }
+        });
     }
 
     @Override
