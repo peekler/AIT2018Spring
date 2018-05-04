@@ -3,12 +3,18 @@ package hu.ait.android.aitforum.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +47,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         holder.tvAuthor.setText(
                 postList.get(holder.getAdapterPosition()).getAuthor());
         holder.tvTitle.setText(
@@ -49,7 +55,46 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         holder.tvBody.setText(
                 postList.get(holder.getAdapterPosition()).getBody());
 
+
+        if (postList.get(holder.getAdapterPosition()).getUid().equals(uId)) {
+            holder.btnDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    removePost(holder.getAdapterPosition());
+                }
+            });
+        } else {
+            holder.btnDelete.setVisibility(View.GONE);
+        }
+
+        if (!TextUtils.isEmpty(postList.get(holder.getAdapterPosition()).getImageUrl())) {
+            Glide.with(context).load(
+                    postList.get(holder.getAdapterPosition()).getImageUrl()
+            ).into(holder.ivImage);
+            holder.ivImage.setVisibility(View.VISIBLE);
+        } else {
+            holder.ivImage.setVisibility(View.GONE);
+        }
+
         setAnimation(holder.itemView, position);
+    }
+
+    public void removePost(int index) {
+        FirebaseDatabase.getInstance().getReference("posts").child(
+                postKeys.get(index)).removeValue();
+
+        postList.remove(index);
+        postKeys.remove(index);
+        notifyItemRemoved(index);
+    }
+
+    public void removePostByKey(String key) {
+        int index = postKeys.indexOf(key);
+        if (index != -1) {
+            postList.remove(index);
+            postKeys.remove(index);
+            notifyItemRemoved(index);
+        }
     }
 
     private void setAnimation(View viewToAnimate, int position) {
@@ -66,11 +111,19 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         return postList.size();
     }
 
+    public void addPost(Post newPost, String key) {
+        postList.add(newPost);
+        postKeys.add(key);
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         public TextView tvAuthor;
         public TextView tvTitle;
         public TextView tvBody;
+        public Button btnDelete;
+        public ImageView ivImage;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -78,6 +131,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             tvAuthor = itemView.findViewById(R.id.tvAuthor);
             tvTitle = itemView.findViewById(R.id.tvTitle);
             tvBody = itemView.findViewById(R.id.tvBody);
+            btnDelete = itemView.findViewById(R.id.btnDel);
+            ivImage = itemView.findViewById(R.id.ivImage);
         }
     }
 

@@ -17,8 +17,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import hu.ait.android.aitforum.adapter.PostsAdapter;
+import hu.ait.android.aitforum.data.Post;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -37,7 +43,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                startActivity(new Intent(MainActivity.this, CreatePostActivity.class));
+                startActivity(new Intent(MainActivity.this,
+                        CreatePostActivity.class));
 
             }
         });
@@ -63,7 +70,42 @@ public class MainActivity extends AppCompatActivity
         recyclerViewPlaces.setLayoutManager(layoutManager);
         recyclerViewPlaces.setAdapter(postsAdapter);
 
+
+        initPosts();
     }
+
+    private void initPosts() {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("posts");
+
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Post newPost = dataSnapshot.getValue(Post.class);
+                postsAdapter.addPost(newPost, dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                postsAdapter.removePostByKey(dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     @Override
     public void onBackPressed() {
