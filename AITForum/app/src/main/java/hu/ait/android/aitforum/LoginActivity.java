@@ -43,6 +43,10 @@ public class LoginActivity extends AppCompatActivity {
 
     @OnClick(R.id.btnLogin)
     void loginClick() {
+        int a = 6/0;
+        Toast.makeText(this, "a: "+a, Toast.LENGTH_SHORT).show();
+
+
         if (!isFormValid()) {
             return;
         }
